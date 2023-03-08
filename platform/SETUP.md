@@ -21,5 +21,3 @@
 
     $ tanzu package install cert-manager --package-name cert-manager.tanzu.vmware.com --version 1.7.2+vmware.1-tkg.1
     $ k apply -f platform/cert-manager/aws-credentials-secret.yaml
-    $ k apply -f platform/cert-manager/cluster-issuer-staging.yaml
-    $ k apply -f platform/cert-manager/cluster-issuer-prod.yaml
