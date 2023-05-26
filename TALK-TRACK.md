@@ -73,7 +73,7 @@ I’ve already done this using the TKG CLI because it takes about 5 minutes.
 
 Now I’ll give the kubeconfig to the developer
 
-    $ tanzu cluster kubeconfig get demo-acceptance-workload --export-file kubeconfig.yaml --admin
+    $ tanzu cluster kubeconfig get demo-acceptance-environment --export-file kubeconfig.yaml --admin
 
 We didn't implement RBAC yet, so the developer will just get admin access to their cluster I guess.
 
@@ -111,9 +111,9 @@ I guess I’ll start by creating a namespace for this app, called demo. Maybe I'
 
     $ cd app/demo
     $ k create ns demo
-    $ k apply -f app/demo/deployment.yaml
+    $ k apply -f deployment.yaml
     $ k get -w deployment demo -n demo
-    $ k apply -f app/demo/service.yaml
+    $ k apply -f service.yaml
     $ k port-forward service/demo 8081:8080 -n demo
 
 ##  [MIRO] Problem
@@ -140,7 +140,8 @@ I'm using the built-in `tanzu-standard` package repository distributed with Tanz
 So let’s install an Ingress Controller, Contour, using the Tanzu package, that will manage ingress for the entire cluster with a single load balancer and public IP.
 
     $ tanzu package available list contour.tanzu.vmware.com
-    $ tanzu package install contour --package-name contour.tanzu.vmware.com --version 1.20.2+vmware.1-tkg.1 --values-file platform/contour/values.yaml
+    $ k create ns tanzu-system-ingress
+    $ tanzu package install contour --package contour.tanzu.vmware.com --version 1.23.5+vmware.1-tkg.1 --values-file platform/contour/values.yaml -n tanzu-system-ingress
 
 ##  [MIRO] What happened?
 
@@ -197,7 +198,7 @@ Let’s add another package called external-dns to automate the creation of DNS 
     $ k create ns tanzu-system-service-discovery
     $ k apply -f platform/external-dns/aws-credentials-secret.yaml
     $ cat platform/external-dns/values.yaml
-    $ tanzu package install external-dns --package-name external-dns.tanzu.vmware.com --version 0.11.0+vmware.1-tkg.2 --values-file platform/external-dns/values.yaml
+    $ tanzu package install external-dns --package external-dns.tanzu.vmware.com --version 0.12.2+vmware.5-tkg.1 --values-file platform/external-dns/values.yaml -n tanzu-system-service-discovery
 
 ##  [MIRO] What happened?
 
@@ -228,7 +229,7 @@ Let's enhance the platform to automate the obtaining and installation of TLS cer
 
 We actually already have cert-manager installed, but we need to make to configure it so it can obtain Let's Encrypt certs and manage them automatically.
 
-    $ tanzu package installed list
+    $ tanzu package installed list -A
     $ k get ns
 
 The first part of that is giving cert-manager access to AWS so cert-manager can do the LE dance to prove ownership of the domain.

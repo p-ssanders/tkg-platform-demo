@@ -2,3 +2,5 @@
 **/*.pem
 **/*.aws
 **/*-secret.*
+kubeconfig.yaml
+mc-kubeconfig.yaml

@@ -1,0 +1,84 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ubuntu,20.04,amd64
+    run.tanzu.vmware.com/resolve-tkr: ""
+    tkg/plan: dev
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: demo-acceptance-environment
+  name: demo-acceptance-environment
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 100.96.0.0/11
+    services:
+      cidrBlocks:
+      - 100.64.0.0/13
+  topology:
+    class: tkg-aws-default-v1.0.0
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: ami-region=us-east-1,os-name=ubuntu,os-arch=amd64
+      replicas: 1
+    variables:
+    - name: cni
+      value: antrea
+    - name: controlPlaneCertificateRotation
+      value:
+        activate: true
+        daysBefore: 90
+    - name: auditLogging
+      value:
+        enabled: true
+    - name: podSecurityStandard
+      value:
+        audit: baseline
+        deactivated: false
+        warn: baseline
+    - name: region
+      value: us-east-1
+    - name: sshKeyName
+      value: tkg-demo
+    - name: loadBalancerSchemeInternal
+      value: false
+    - name: bastion
+      value:
+        enabled: true
+    - name: network
+      value:
+        subnets:
+        - az: us-east-1a
+          private:
+            id: subnet-0b7cd52f48e0b4f47
+          public:
+            id: subnet-05acf8c11349b4dde
+        vpc:
+          cidr: 10.0.0.0/16
+          existingID: vpc-0321606567a154c6d
+    - name: identityRef
+      value:
+        kind: AWSClusterRoleIdentity
+    - name: worker
+      value:
+        instanceType: m5.large
+        rootVolume:
+          sizeGiB: 80
+    - name: controlPlane
+      value:
+        instanceType: t3.large
+        rootVolume:
+          sizeGiB: 80
+    version: v1.25.7+vmware.2-tkg.1
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: us-east-1a
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: ami-region=us-east-1,os-name=ubuntu,os-arch=amd64
+        name: md-0
+        replicas: 1

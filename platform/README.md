@@ -15,9 +15,14 @@
 
 ##  Create a Workload Cluster
 
-    $ tanzu cluster create demo-acceptance-workload --file platform/demo-acceptance-workload.yaml
+    $ tanzu cluster create demo-acceptance-workload --file demo-acceptance-environment.yaml
+
+##  Add the Standard Package Repository
+
+    $ tanzu package repository add tanzu-standard --url projects.registry.vmware.com/tkg/packages/standard/repo:v2.2.0 --namespace tkg-system
 
 ##  Install Cert-Manager
 
-    $ tanzu package install cert-manager --package-name cert-manager.tanzu.vmware.com --version 1.7.2+vmware.1-tkg.1
+    $ k create ns cert-manager
+    $ tanzu package install cert-manager --package cert-manager.tanzu.vmware.com --version 1.7.2+vmware.3-tkg.3 -n cert-manager
     $ k apply -f platform/cert-manager/aws-credentials-secret.yaml
